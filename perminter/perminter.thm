@@ -1,0 +1,67 @@
+Specification "perminter".
+
+Define perm : nlist -> nlist -> prop by
+perm mt mt;
+perm (cn X Xs') (cn X Ys') := perm Xs' Ys';
+perm (cn X (cn Y Xs')) (cn Y (cn X Ys')) := perm Xs' Ys';
+perm Xs Zs := exists Ys, perm Xs Ys /\ perm Ys Zs.
+
+Define inter : nlist -> nlist -> nlist -> prop by
+inter mt Ys Ys;
+inter Xs mt Xs;
+inter (cn X Xs') Ys (cn X Zs) := inter Xs' Ys Zs;
+inter Xs (cn Y Ys') (cn Y Zs) := inter Xs Ys' Zs.
+
+Theorem perm_over_inter:
+  forall Xs1 Xs2 Xs Ys,
+    inter Xs1 Xs2 Xs
+    -> perm Xs Ys
+    -> exists Ys1 Ys2,
+      perm Xs1 Ys1
+      /\ perm Xs2 Ys2
+      /\ inter Ys1 Ys2 Ys.
+ induction on 2. intros. case H2.
+ 
+  case H1.
+
+   search.
+
+   search.
+
+  case H1.
+
+   search.
+
+   search.
+
+   apply IH to H4 H3. search.
+
+   apply IH to H4 H3. search.
+
+ case H1.
+
+  search.
+
+  search.
+
+  case H4.
+
+   search.
+
+   search.
+
+   apply IH to H5 H3. search.
+
+   apply IH to H5 H3. search.
+
+  case H4.
+
+   search.
+
+   search.
+
+   apply IH to H5 H3. search.
+
+   apply IH to H5 H3. search.
+
+ apply IH to H1 H3. apply IH to H7 H4. search.

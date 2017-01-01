@@ -1,0 +1,215 @@
+Specification "eulerianpath".
+
+Define is_lst: lst -> prop by
+is_lst mt;
+is_lst (ex E Es) := is_lst Es.
+
+Define eperm : lst -> lst -> prop by
+eperm mt mt;
+eperm (ex X Xs') (ex X Ys') := eperm Xs' Ys';
+eperm (ex X (ex Y Xs')) (ex Y (ex X Ys')) := eperm Xs' Ys';
+eperm Xs Zs := exists Ys, eperm Xs Ys /\ eperm Ys Zs.
+
+Theorem eperm_refl:
+  forall Xs,
+    is_lst Xs
+    -> eperm Xs Xs.
+ induction on 1. intros. case H1.
+
+  search.
+
+  apply IH to H2. search.
+
+Theorem eperm_is_lst_inv:
+ forall Xs Ys,
+   eperm Xs Ys
+   -> is_lst Xs.
+ induction on 1. intros. case H1.
+
+  search.
+
+  apply IH to H2. search.
+
+  apply IH to H2. search.
+
+  apply IH to H2. search.
+
+Theorem eperm_sym: forall Xs Ys, eperm Xs Ys -> eperm Ys Xs.
+ induction on 1. intros. case H1.
+
+  search.
+
+  apply IH to H2. search.
+
+  apply IH to H2. search.
+
+  apply IH to H2. apply IH to H3. search. 
+
+Theorem select_is_lst:
+  forall Xs X Xs',
+    is_lst Xs
+    -> {select Xs X Xs'}
+    -> is_lst Xs'.
+ induction on 1. intros. case H1.
+
+  case H2.
+
+  case H2.
+
+   search.
+
+   apply IH to H3 H4. search.
+
+Theorem eperm_select:
+  forall Xs Xs' Ys E,
+    eperm Xs Ys
+    -> {select Xs E Xs'}
+    -> exists Ys',
+       {select Ys E Ys'}
+       /\ eperm Xs' Ys'.   
+induction on 1. intros. case H1.
+
+ case H2.
+
+ case H2.
+
+  search.
+
+  apply IH to H3 H4. search.
+
+  case H2.
+
+   search.
+
+   case H4.
+
+    search.
+
+    apply IH to H3 H5. search.
+
+  apply IH to H3 H2. apply IH to H4 H5. assert (eperm Xs' Ys'1).
+  search.
+
+Theorem eperm_mt: forall Xs, eperm mt Xs -> Xs = mt.
+ induction on 1. intros. case H1.
+ 
+  search.
+
+  apply IH to H2. apply IH to H3. search.
+
+Theorem eperm_eulpth:
+  forall X Y Xs Ys,
+    eperm Xs Ys
+    -> {eulpth X Y Xs}
+    -> {eulpth X Y Ys}.
+ induction on 2. intros. case H2.
+
+  apply eperm_mt to H1. search.
+
+  apply eperm_select to H1 H3. apply IH to H6 H4. search.
+
+Theorem eperm_extend:
+  forall Xs Ys X,
+    eperm Xs Ys
+    -> eperm (ex X Xs) (ex X Ys).
+ search.
+
+Theorem eperm_swap:
+  forall X1 X2 Xs Ys,
+  eperm Xs Ys
+  -> eperm (ex X1 (ex X2 Xs)) (ex X2 (ex X1 Ys)).
+ search.
+
+Theorem eperm_extend_right:
+  forall Xs X Xs' Ys',
+    eperm Xs' Ys'
+    -> {select Xs X Xs'}
+    -> eperm Xs (ex X Ys').
+ induction on 1. intros. case H1.
+
+  case H2. search.
+
+  case H2.
+
+   search.
+
+   apply IH to H3 H4. apply eperm_extend to H5 with X = X1.
+   apply eperm_sym to H6. apply eperm_is_lst_inv to H7. case H8.
+   case H9. apply eperm_refl to H10.
+   apply eperm_swap to H11 with X1 = X, X2 = X1.
+   apply eperm_sym to H12. search.
+
+   case H2.
+
+    search.
+
+    case H4.
+
+     apply eperm_sym to H3. apply eperm_is_lst_inv to H5.
+     apply eperm_refl to H6.
+     apply eperm_swap to H3 with X1 = X1, X2 = X.
+     apply eperm_swap to H7 with X1 = X, X2 = X1.
+     search.
+
+     apply IH to H3 H5.
+     apply eperm_sym to H6. apply eperm_is_lst_inv to H7.
+     apply eperm_refl to H8.
+     apply eperm_extend to H6 with X = Y.
+     apply eperm_extend to H10 with X = X1.
+     case H8. apply eperm_refl to H12.
+     assert eperm (ex X1 (ex Y (ex X Ys'1))) (ex X1 (ex X (ex Y Ys'1))).
+     search.
+
+  apply IH to H3 H2. search.
+
+ Theorem is_lst_select_is_lst:
+  forall Xs X Xs',
+    is_lst Xs'
+    -> {select Xs X Xs'}
+    -> is_lst Xs.
+ induction on 1. intros. case H1.
+
+  case H2. search.
+
+  case H2.
+
+   search.
+
+   apply IH to H3 H4. search.
+
+Theorem eulpth_is_lst:
+  forall X Y Es,
+    {eulpth X Y Es}
+    -> is_lst Es.
+ induction on 1. intros. case H1.
+
+  search.
+
+  apply IH to H3. apply is_lst_select_is_lst to H4 H2. search.
+
+Theorem select_head: forall Xs X, {select (ex X Xs) X Xs}.
+ search.
+    
+Theorem eulpth_extend:
+  forall Xs X Y Z, {eulpth Y Z Xs} -> {eulpth X Z (ex (p X Y) Xs)}.
+ intros. search.
+
+Theorem eulpath_extend:
+  forall X Y Z Es' Es,
+    {eulpth X Y Es'}
+    -> {select Es (p Y Z) Es'}
+    -> {eulpth X Z Es}.
+ induction on 1. intros. case H1.
+
+  case H2. search.
+
+  apply eulpth_is_lst to H4. apply eperm_refl to H5.
+  apply eperm_extend_right to H6 H3.
+  apply eperm_extend_right to H7 H2.
+  apply select_head with Xs = Es'1, X = p Y Z.
+  apply IH to H4 H9.
+  apply eulpth_extend to H10 with X = X.
+  apply eperm_swap to H6 with X1 = p X Y1, X2 = p Y Z.
+  apply eperm_eulpth to H12 H11.
+  apply eperm_sym to H8.
+  apply eperm_eulpth to H14 H13. search.

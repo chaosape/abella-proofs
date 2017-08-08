@@ -1,0 +1,44 @@
+Kind nat type.
+Type z nat.
+Type s nat -> nat.
+
+%% A function that increments a natural number at least once.
+Define greater : (nat -> nat) -> prop by
+  greater (x\ s x) ;
+  greater (x\ F x) := greater F.
+
+%% The obvious definition for well-formedness of a natural number.
+Define isnat' : nat -> prop by
+  isnat' z ;
+  isnat' (s X) := isnat' X.
+
+%% An different definition for well-formedness of a natural number
+%% that recurses not on the s term but on greater abstractions.
+Define isnat : nat -> prop by
+  isnat z;
+  isnat (F X) := greater F /\ isnat X.
+
+Theorem isnat'toisnat: forall X, isnat' X -> isnat X.
+ induction on 1. intros. case H1.
+  search.
+ apply IH to H2. search.
+
+Theorem isnat'greaterisnat': forall X F, isnat' X -> greater F -> isnat' (F X).
+ induction on 2. intros. case H2.
+  search.
+ apply IH to H1 H3. search.
+
+Theorem isnattoisnat': forall X, isnat X -> isnat' X.
+ induction on 1. intros. case H1.
+  search.
+ apply IH to H3. apply isnat'greaterisnat' to H4 H2. search.
+
+%% isnat and isnat' are logically equivalent
+Theorem isnatequivisnat': (forall X, isnat X -> isnat' X) /\ (forall X, isnat' X -> isnat X).
+ intros. split.
+  intros. apply isnattoisnat' to H1. search.
+ intros. apply isnat'toisnat to H1. search.
+
+
+
+

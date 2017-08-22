@@ -1,0 +1,40 @@
+Kind nat type.
+Kind nlist type.
+
+Type cn nat -> nlist -> nlist.
+Type mt nlist.
+
+Define perm : nlist -> nlist -> prop by
+perm Xs Xs;
+perm (cn X Xs') (cn X Ys') := perm Xs' Ys';
+perm (cn X (cn Y Xs')) (cn Y (cn X Ys')) := perm Xs' Ys';
+perm Xs Zs := exists Ys, perm Xs Ys /\ perm Ys Zs.
+
+Define part : nlist -> nlist -> nlist -> prop by
+part mt mt mt;
+part (cn X Zs) (cn X Xs') Ys := part Zs Xs' Ys;
+part (cn Y Zs) Xs (cn Y Ys') := part Zs Xs Ys'.
+
+Theorem perm_over_part:
+  forall Xs1 Xs2 Xs Ys,
+    part Xs Xs1 Xs2
+    -> perm Xs Ys
+    -> exists Ys1 Ys2,
+      perm Xs1 Ys1
+      /\ perm Xs2 Ys2
+      /\ part Ys Ys1 Ys2.
+ induction on 2. intros. case H2.
+    search.
+   case H1.
+    apply IH to H4 H3. exists (cn X Ys1). exists Ys2. search.
+   apply IH to H4 H3. exists Ys1. exists (cn X Ys2). search.
+  case H1.
+   case H4.
+    apply IH to H5 H3. exists (cn Y (cn X Ys1)). exists Ys2. search.
+   apply IH to H5 H3. exists (cn X Ys1). exists (cn Y Ys2). search.
+  case H4.
+   apply IH to H5 H3. exists (cn Y Ys1). exists (cn X Ys2). search.
+  apply IH to H5 H3. exists Ys1. exists (cn Y (cn X Ys2)). search.
+ apply IH to H1 H3. apply IH to H7 H4. assert (perm Xs1 Ys4).
+ assert (perm Xs2 Ys5). exists Ys4. exists Ys5. search.
+

@@ -5,14 +5,14 @@ Type s nat -> nat.
 %% A function that increments a natural number at least once.
 Define greater : (nat -> nat) -> prop by
   greater (x\ s x) ;
-  greater (x\ F x) := greater F.
+  greater (x\ s (F x)) := greater F.
 
 %% The obvious definition for well-formedness of a natural number.
 Define isnat' : nat -> prop by
   isnat' z ;
   isnat' (s X) := isnat' X.
 
-%% An different definition for well-formedness of a natural number
+%% A different definition for well-formedness of a natural number
 %% that recurses not on the s term but on greater abstractions.
 Define isnat : nat -> prop by
   isnat z;
@@ -35,7 +35,7 @@ Theorem isnattoisnat': forall X, isnat X -> isnat' X.
 
 %% isnat and isnat' are logically equivalent
 Theorem isnatequivisnat': (forall X, isnat X -> isnat' X) /\ (forall X, isnat' X -> isnat X).
- intros. split.
+ split.
   intros. apply isnattoisnat' to H1. search.
  intros. apply isnat'toisnat to H1. search.
 

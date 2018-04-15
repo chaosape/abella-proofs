@@ -1,0 +1,170 @@
+Specification "trans".
+
+% Shape of context extension from of predicate.
+Define of_ctx : olist -> prop by
+  of_ctx nil;
+  nabla x, of_ctx (of x Y::Cs) := of_ctx Cs.
+
+% Shape of context extension from trans predicate.
+Define trans_ctx : olist -> prop by
+  trans_ctx nil;
+  nabla x y, trans_ctx (trans x y::Cs) := trans_ctx Cs.
+
+% Nominal constant of the ml type.
+Define ml_name : ml -> prop by
+  nabla x, ml_name x.
+
+% Nominal constant of the lc type.  
+Define lc_name : lc -> prop by
+  nabla x, lc_name x.
+
+% A mapping between of context extensions and trans context
+% extensions.  Paired of predicate instances and trans predicate
+% instances have the same ml nominal constant.
+Define of_to_trans_ctx: olist -> olist -> prop by
+  of_to_trans_ctx nil nil;
+  nabla x y,
+    of_to_trans_ctx (of x T::Os) (trans x y::Ts) := of_to_trans_ctx Os Ts.
+
+% Members of of context extension have a shape consistent with the of
+% predicated.
+Theorem of_ctx_member:
+  forall F Os, of_ctx Os -> member F Os -> exists E T, ml_name E /\ F = of E T.
+ induction on 1.
+ intros.
+ case H1.
+  case H2.
+ case H2.
+  search.
+ apply IH to H1 H2.
+ search.  
+
+% Members of trans context extension have a shape consistent with the
+% trans predicate.
+Theorem trans_ctx_member:
+  forall F Ts,
+  trans_ctx Ts
+  -> member F Ts
+  -> exists S D, lc_name D /\ F = trans S D.
+ induction on 1.
+ intros.
+ case H1.
+  case H2.
+ case H2.
+  search.
+ apply IH to H1 H2.
+ search.
+
+% A mapping can be constructed from an of context extension.
+Theorem of_to_trans_exists:
+  forall Os,
+  of_ctx Os
+  -> exists Ts, of_to_trans_ctx Os Ts.
+ induction on 1.
+ intros.
+ case H1.
+  search.
+ apply IH to H1.
+ assert (nabla (n2:lc), n2 = n2).
+ case H3.
+ exists (trans n1 n2::Ts).
+ search.
+
+% Find the lc nominal constant corresponding to an of predicate
+% instance that is an element of a of context extension in a mapping
+% relation.
+Theorem of_to_trans_find_lc_var:
+  forall Os Ts X T,
+  of_to_trans_ctx Os Ts
+  -> member (of X T) Os
+  -> exists Y, member (trans X Y) Ts /\ lc_name Y.
+ induction on 1.
+ intros.
+ case H1.
+  case H2.
+ case H2.
+  search.
+ apply IH to H1 H2.
+ search.
+
+% The second argument of an of to trans variable mapping is a trans
+% context extension.
+Theorem of_to_trans_trans_ctx:
+  forall Os Ts, of_to_trans_ctx Os Ts -> trans_ctx Ts.
+ induction on 1.
+ intros.
+ case H1.
+  search.
+ apply IH to H1.
+ search. 
+
+% lc terms can only vacously depend on ml terms.  
+Theorem target_wt:
+  forall Ts S D X Y,
+  trans_ctx Ts
+  -> {Ts |- trans (S X) (D Y X)}
+  -> exists D', D = x:lc\y:ml\D' x.
+ induction on 2.
+ intros.
+ case H2.
+   case H2.
+    case H3.
+     apply IH to _ H4 with S = x\S1 x n1, D = x\y\D1 x y n2.
+     search.
+    apply IH to _ H4 with X = fun F, S = x\F n1, D = x\y\D1 x y n2.
+    search.
+   search.
+  case H2.
+   case H3.
+    apply IH to _ H4 with S = x\S2 x, D = x\y\D1 x y.
+    apply IH to _ H5 with S = x\S3 x, D = x\y\D2 x y.
+    search.
+   apply IH to _ H4 with X = call M N, S = x\M, D = x\y\D1 x y.
+   apply IH to _ H5 with X = call M N, S = x\N, D = x\y\D2 x y.
+   search.
+  search.
+ apply trans_ctx_member to H1 H3.
+ case H2.
+ case H4.
+ case H2.
+  search.
+ search. 
+
+% If we have a mapping trans is total.      
+Theorem trans_is_total_aux:
+  forall S T Os Ts,
+  of_ctx Os
+  -> { Os |- of S T }
+  -> of_to_trans_ctx Os Ts
+  -> exists D, { Ts |- trans S D }.
+ induction on 2.
+ intros.
+ case H2.
+   assert (nabla n2, of_to_trans_ctx (of n1 T1::Os) (trans n1 n2::Ts)).
+   case H4.
+   apply IH to _ H2 H4.
+   apply of_to_trans_trans_ctx to H4.
+   apply target_wt to H6 H5 with S = x\S1 x, D = x\y\D x y.
+   search.
+  apply IH to H1 H2 H3.
+  apply IH to H1 H4 H3.
+  search.
+ apply of_ctx_member to H1 H4.
+ case H5.
+ case H2.
+ apply of_to_trans_find_lc_var to H3 H4.
+ case H6.
+ search.
+
+% trans is total
+Theorem trans_is_total:
+  forall S T Os,
+  of_ctx Os
+  -> { Os |- of S T }
+  -> exists Ts D, { Ts |- trans S D }.
+ intros.
+ apply of_to_trans_exists to H1.
+ exists Ts.
+ apply trans_is_total_aux to H1 H2 H3.
+ search.
+  
